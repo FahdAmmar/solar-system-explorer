@@ -1,8 +1,15 @@
 import { Canvas } from '@react-three/fiber'
+import { useState } from 'react'
 import { CAMERA } from '@/features/solar-system/data/camera'
+import { useDeselectOnEscape } from '@/features/solar-system/hooks/useDeselectOnEscape'
+import { useResetHighlightOnUnmount } from '@/features/solar-system/hooks/useResetHighlightOnUnmount'
+import { OverlayRegistry } from '@/features/solar-system/utils/overlayRegistry'
 import { isWebGLSupported } from '@/features/solar-system/utils/webgl'
+import { useSolarSystemStore } from '@/store/solarSystemStore'
 import type { Planet } from '@/types/planet'
 import { CameraController } from './CameraController'
+import { OverlayPositioner } from './OverlayPositioner'
+import { SceneOverlay } from './SceneOverlay'
 import { SolarSystem } from './SolarSystem'
 import { WebGLUnsupported } from './WebGLUnsupported'
 
@@ -11,16 +18,28 @@ const BACKGROUND_COLOR = '#03050c'
 const PIXEL_RATIO_RANGE: [number, number] = [1, 2]
 
 export function SolarSystemCanvas({ planets }: { planets: readonly Planet[] }) {
+  const [registry] = useState(() => new OverlayRegistry())
+  const selectPlanet = useSolarSystemStore((state) => state.selectPlanet)
+  useDeselectOnEscape()
+  useResetHighlightOnUnmount()
+
   if (!isWebGLSupported()) return <WebGLUnsupported />
 
   return (
-    <Canvas
-      dpr={PIXEL_RATIO_RANGE}
-      camera={{ fov: CAMERA.fov, near: CAMERA.near, far: CAMERA.far }}
-    >
-      <color attach="background" args={[BACKGROUND_COLOR]} />
-      <CameraController />
-      <SolarSystem planets={planets} />
-    </Canvas>
+    <div className="relative isolate h-full">
+      <Canvas
+        aria-hidden="true"
+        dpr={PIXEL_RATIO_RANGE}
+        camera={{ fov: CAMERA.fov, near: CAMERA.near, far: CAMERA.far }}
+        onPointerMissed={() => selectPlanet(null)}
+      >
+        <color attach="background" args={[BACKGROUND_COLOR]} />
+        <CameraController />
+        <SolarSystem planets={planets} />
+        {/* After the camera controller, so it reads this frame's camera. */}
+        <OverlayPositioner bodies={planets} registry={registry} />
+      </Canvas>
+      <SceneOverlay bodies={planets} registry={registry} />
+    </div>
   )
 }

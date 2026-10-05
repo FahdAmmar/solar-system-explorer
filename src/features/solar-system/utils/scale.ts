@@ -1,6 +1,7 @@
 import {
   EARTH_RADIUS_KM,
   MILLION_KM_PER_AU,
+  SATURN_RING_RADII,
   VISUAL_SCALE,
 } from '@/features/solar-system/data/visualScale'
 import type { Planet } from '@/types/planet'
@@ -24,4 +25,10 @@ export function toSceneRadius(radiusKm: number): number {
 
 export function getBodyRadius(body: Planet): number {
   return body.type === 'star' ? VISUAL_SCALE.sunRadius : toSceneRadius(body.radius)
+}
+
+// Radius of everything that belongs to the body, including Saturn's rings.
+export function getVisualExtent(body: Planet): number {
+  const radius = getBodyRadius(body)
+  return body.id === 'saturn' ? radius * SATURN_RING_RADII.outer : radius
 }
