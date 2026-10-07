@@ -3,6 +3,7 @@ import {
   DEFAULT_SIMULATION_SPEED,
   type SimulationSpeed,
 } from '@/features/solar-system/data/simulation'
+import type { CameraCommand, CameraMode } from '@/features/solar-system/types/camera'
 
 // Client/UI state only. Planet data is server state and belongs to TanStack Query.
 export interface SolarSystemState {
@@ -12,6 +13,9 @@ export interface SolarSystemState {
   /** Keyboard focus on a planet button. Kept apart from hover so the two never overwrite each other. */
   focusedPlanetId: string | null
   isPaused: boolean
+  cameraMode: CameraMode
+  /** The latest camera request. A new object per request, so asking twice still moves the camera. */
+  cameraCommand: CameraCommand | null
   simulationSpeed: SimulationSpeed
   showOrbits: boolean
   showLabels: boolean
@@ -24,6 +28,8 @@ export interface SolarSystemState {
   focusPlanet: (id: string | null) => void
   unfocusPlanet: (id: string) => void
   togglePause: () => void
+  resetView: () => void
+  setCameraMode: (mode: CameraMode) => void
   setSimulationSpeed: (speed: SimulationSpeed) => void
   toggleOrbits: () => void
   toggleLabels: () => void
@@ -35,12 +41,21 @@ export const useSolarSystemStore = create<SolarSystemState>()((set) => ({
   hoveredPlanetId: null,
   focusedPlanetId: null,
   isPaused: false,
+  cameraMode: 'free',
+  cameraCommand: null,
   simulationSpeed: DEFAULT_SIMULATION_SPEED,
   showOrbits: true,
   showLabels: true,
   showStars: true,
 
-  selectPlanet: (id) => set({ selectedPlanetId: id }),
+  selectPlanet: (id) =>
+    set(
+      id === null
+        ? { selectedPlanetId: null, cameraCommand: { type: 'release' } }
+        : { selectedPlanetId: id, cameraCommand: { type: 'focus', id } },
+    ),
+  resetView: () => set({ selectedPlanetId: null, cameraCommand: { type: 'reset' } }),
+  setCameraMode: (mode) => set({ cameraMode: mode }),
   hoverPlanet: (id) => set({ hoveredPlanetId: id }),
   unhoverPlanet: (id) =>
     set((state) => (state.hoveredPlanetId === id ? { hoveredPlanetId: null } : state)),

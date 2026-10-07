@@ -13,3 +13,6 @@ export const LABEL_SPACING_PX = 4
 /** Planet glow while hovered or selected (0 = none). */
 export const HOVER_EMISSIVE_INTENSITY = 0.2
 export const SELECTED_EMISSIVE_INTENSITY = 0.3
+
+/** A press that moves farther than this is a drag (orbiting the camera), not a click. */
+export const MAX_CLICK_MOVE_PX = 8

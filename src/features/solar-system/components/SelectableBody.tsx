@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { MAX_CLICK_MOVE_PX } from '@/features/solar-system/data/interaction'
 import type { BodyHandlers } from '@/features/solar-system/types/interaction'
 import { getBodyObjectName } from '@/features/solar-system/utils/bodyObjectName'
 import { HitTarget } from './HitTarget'
@@ -25,6 +26,8 @@ export function SelectableBody({
       onClick={(event) => {
         // Only the nearest body reacts, not the ones behind it.
         event.stopPropagation()
+        // Dragging to orbit the camera can start and end on a body: that is not a selection.
+        if (event.delta > MAX_CLICK_MOVE_PX) return
         onSelect(id)
       }}
       onPointerOver={(event) => {
