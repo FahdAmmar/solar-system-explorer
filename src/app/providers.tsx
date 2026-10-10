@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
+import { shouldRetryRequest } from '@/services/api'
 
 const FIVE_MINUTES_MS = 5 * 60 * 1000
 
@@ -8,7 +9,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: FIVE_MINUTES_MS,
-      retry: 1,
+      retry: shouldRetryRequest,
       refetchOnWindowFocus: false,
     },
   },

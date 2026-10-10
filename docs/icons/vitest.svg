@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Vitest">
+  <title>Vitest</title>
+  <rect width="64" height="64" rx="14" fill="#0d1117"/>
+  <rect x=".5" y=".5" width="63" height="63" rx="13.5" fill="none" stroke="#30363d"/>
+  <g transform="translate(14 14) scale(1.5)" fill="#00FF74"><path d="M11.545 23.3a.613.613 0 0 1-.895.197L.252 15.936A.61.61 0 0 1 0 15.439V6.325c0-.502.569-.792.975-.497l6.358 4.624c.594.433 1.432.25 1.793-.39L14.393.7a.62.62 0 0 1 .535-.314h8.455a.613.613 0 0 1 .537.916z"/></g>
+</svg>

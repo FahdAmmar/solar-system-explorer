@@ -1,9 +1,12 @@
-import { memo } from 'react'
-import { AdditiveBlending } from 'three'
+import { memo, useRef } from 'react'
+import { AdditiveBlending, type Group } from 'three'
+import { useBodySpin } from '@/features/solar-system/hooks/useBodySpin'
 import { useDisposable } from '@/features/solar-system/hooks/useDisposable'
+import { useSurfaceTexture } from '@/features/solar-system/hooks/useSurfaceTexture'
 import type { BodyHandlers } from '@/features/solar-system/types/interaction'
 import { unitSphereGeometry } from '@/features/solar-system/utils/geometries'
 import { getBodyRadius } from '@/features/solar-system/utils/scale'
+import type { SimulationClock } from '@/features/solar-system/utils/simulationClock'
 import { createGlowTexture } from '@/features/solar-system/utils/textures'
 import type { Planet } from '@/types/planet'
 import { SelectableBody } from './SelectableBody'
@@ -17,18 +20,32 @@ const GLOW_SIZE_IN_RADII = 3.5
 
 interface SunProps extends BodyHandlers {
   data: Planet
+  clock: SimulationClock
 }
 
-export const Sun = memo(function Sun({ data, ...handlers }: SunProps) {
+export const Sun = memo(function Sun({ data, clock, ...handlers }: SunProps) {
   const radius = getBodyRadius(data)
   const glowTexture = useDisposable(createGlowTexture)
+  const surface = useSurfaceTexture(data)
+  const spinRef = useRef<Group>(null)
   const glowSize = radius * GLOW_SIZE_IN_RADII
+
+  useBodySpin(spinRef, clock, data.rotationPeriod)
 
   return (
     <SelectableBody id={data.id} radius={radius} {...handlers}>
-      <mesh geometry={unitSphereGeometry} scale={radius} dispose={null}>
-        <meshStandardMaterial color="#000000" emissive={data.color} toneMapped={false} />
-      </mesh>
+      {/* Only the surface spins: the glow sprite faces the camera and the light has no direction. */}
+      <group ref={spinRef}>
+        <mesh geometry={unitSphereGeometry} scale={radius} dispose={null}>
+          {/* The texture carries the colour, so the emissive colour is neutral white. */}
+          <meshStandardMaterial
+            color="#000000"
+            emissive="#ffffff"
+            emissiveMap={surface}
+            toneMapped={false}
+          />
+        </mesh>
+      </group>
       {/* The glow is a square sprite: excluded from picking so its corners do not select the Sun. */}
       <sprite scale={[glowSize, glowSize, 1]} raycast={() => null}>
         <spriteMaterial

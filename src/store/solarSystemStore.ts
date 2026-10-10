@@ -4,8 +4,16 @@ import {
   type SimulationSpeed,
 } from '@/features/solar-system/data/simulation'
 import type { CameraCommand, CameraMode } from '@/features/solar-system/types/camera'
+import { SimulationClock } from '@/features/solar-system/utils/simulationClock'
+import { prefersReducedMotion } from '@/utils/motion'
 
-// Client/UI state only. Planet data is server state and belongs to TanStack Query.
+// WHERE STATE LIVES
+//  - This store: client state that several components share or that must outlive a page
+//    (selection, simulation controls, view toggles, camera requests, simulated time).
+//  - useState in a component: state only that component cares about (search text, panel open).
+//  - Plain objects owned by one mounted scene (OverlayRegistry): they point at 3D objects
+//    that are destroyed with the canvas, so they must not outlive it.
+//  - TanStack Query (usePlanets): planet data. It is server state and never goes in here.
 export interface SolarSystemState {
   selectedPlanetId: string | null
   /** Pointer hover. */
@@ -20,6 +28,13 @@ export interface SolarSystemState {
   showOrbits: boolean
   showLabels: boolean
   showStars: boolean
+  /**
+   * Simulated time. One mutable object whose reference never changes: the frame loop advances
+   * it every frame WITHOUT notifying subscribers, because a store update that often would
+   * re-render React 60 times a second. It lives here, not in a component, so time survives
+   * leaving and returning to the page. Mount one scene at a time: each scene advances it.
+   */
+  readonly clock: SimulationClock
 
   selectPlanet: (id: string | null) => void
   hoverPlanet: (id: string | null) => void
@@ -40,13 +55,15 @@ export const useSolarSystemStore = create<SolarSystemState>()((set) => ({
   selectedPlanetId: null,
   hoveredPlanetId: null,
   focusedPlanetId: null,
-  isPaused: false,
+  // Continuous motion is off by default for people who asked their system for less of it.
+  isPaused: prefersReducedMotion(),
   cameraMode: 'free',
   cameraCommand: null,
   simulationSpeed: DEFAULT_SIMULATION_SPEED,
   showOrbits: true,
   showLabels: true,
   showStars: true,
+  clock: new SimulationClock(),
 
   selectPlanet: (id) =>
     set(

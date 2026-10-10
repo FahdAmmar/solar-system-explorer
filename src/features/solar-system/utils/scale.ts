@@ -4,10 +4,8 @@ import {
   SATURN_RING_RADII,
   VISUAL_SCALE,
 } from '@/features/solar-system/data/visualScale'
+import { isPositive } from '@/features/solar-system/utils/numbers'
 import type { Planet } from '@/types/planet'
-
-// Invalid input must never become NaN in the scene.
-const isPositive = (value: number) => Number.isFinite(value) && value > 0
 
 export function toSceneDistance(distanceMillionKm: number): number {
   if (!isPositive(distanceMillionKm)) return 0

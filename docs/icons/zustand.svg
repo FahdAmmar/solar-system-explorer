@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Zustand">
+  <title>Zustand</title>
+  <rect width="64" height="64" rx="14" fill="#0d1117"/>
+  <rect x=".5" y=".5" width="63" height="63" rx="13.5" fill="none" stroke="#30363d"/>
+  <text x="32" y="43" text-anchor="middle" font-family="system-ui, sans-serif" font-size="30" font-weight="700" fill="#E8A66B">Z</text>
+</svg>

@@ -6,7 +6,8 @@ export function useDeselectOnEscape() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') selectPlanet(null)
+      // defaultPrevented: another control (the search box) already used this Escape press.
+      if (event.key === 'Escape' && !event.defaultPrevented) selectPlanet(null)
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)

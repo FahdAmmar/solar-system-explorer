@@ -2,17 +2,15 @@ import { OrbitControls } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import { type ComponentRef, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { PerspectiveCamera } from 'three'
+import { FRAME_PRIORITY } from '@/features/solar-system/data/simulation'
 import { CameraDirector } from '@/features/solar-system/utils/cameraDirector'
 import { getBodyObjectName } from '@/features/solar-system/utils/bodyObjectName'
-import { prefersReducedMotion } from '@/features/solar-system/utils/motion'
+import { prefersReducedMotion } from '@/utils/motion'
 import { getVisualExtent } from '@/features/solar-system/utils/scale'
 import { useSolarSystemStore } from '@/store/solarSystemStore'
 import type { Planet } from '@/types/planet'
 
 const DAMPING_FACTOR = 0.08
-// After the controls (-1), before the overlay (0). R3F renders automatically only while
-// every frame callback stays at or below 0.
-const DIRECTOR_PRIORITY = -0.5
 
 // Free camera (orbit, zoom, pan) plus focus and reset. The store says what to do and
 // <CameraDirector /> decides how the move looks; this component only connects the two.
@@ -68,10 +66,10 @@ export function CameraController({ bodies }: { bodies: readonly Planet[] }) {
   }, [get, extents])
 
   useEffect(() => {
-    directorRef.current?.refitIfPristine()
+    directorRef.current?.onAspectChange()
   }, [aspect])
 
-  useFrame(() => directorRef.current?.update(), DIRECTOR_PRIORITY)
+  useFrame(() => directorRef.current?.update(), FRAME_PRIORITY.director)
 
   return (
     <OrbitControls

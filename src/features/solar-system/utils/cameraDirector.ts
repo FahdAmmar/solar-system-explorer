@@ -4,6 +4,7 @@ import { CAMERA_LIMITS, CAMERA_TRANSITION } from '@/features/solar-system/data/c
 import type { CameraCommand, CameraMode } from '@/features/solar-system/types/camera'
 import {
   getDefaultCameraPosition,
+  getFocusDistance,
   getFocusPosition,
 } from '@/features/solar-system/utils/cameraFraming'
 import {
@@ -47,6 +48,8 @@ export class CameraDirector {
   private kind: TransitionKind | null = null
   private focusedObject: Object3D | null = null
   private focusedExtent = 0
+  // Canvas shape the focused framing was computed for: a resize scales the distance from here.
+  private framedAspect = 1
   // True until the user moves the camera: only then does a resize re-frame the overview.
   private pristine = true
 
@@ -119,8 +122,32 @@ export class CameraDirector {
     this.setMode('free')
   }
 
-  refitIfPristine() {
+  // The canvas changed shape (a phone was rotated, the details panel opened below the scene).
+  onAspectChange() {
+    this.refitIfPristine()
+    this.refitFocused()
+  }
+
+  private refitIfPristine() {
     if (this.pristine && this.mode === 'free' && !this.tween) this.placeAtDefault()
+  }
+
+  // Keeps the planet the same size on screen: same viewing direction and the person's own
+  // zoom, rescaled for the new shape. Mid-flight the tween already reads the live aspect.
+  private refitFocused() {
+    if (this.mode !== 'focused' || !this.focusedObject) return
+    const { camera, controls } = this.rig
+    const aspect = this.rig.getAspect()
+    const before = getFocusDistance(this.focusedExtent, this.framedAspect, camera.fov)
+    const after = getFocusDistance(this.focusedExtent, aspect, camera.fov)
+    this.framedAspect = aspect
+    if (!(before > 0) || !Number.isFinite(after)) return
+
+    this.scratch
+      .copy(camera.position)
+      .sub(controls.target)
+      .multiplyScalar(after / before)
+    camera.position.copy(controls.target).add(this.scratch)
   }
 
   // Runs every frame, after the controls have updated.
@@ -219,6 +246,7 @@ export class CameraDirector {
   private finish() {
     this.tween = null
     if (this.kind === 'focus') {
+      this.framedAspect = this.rig.getAspect()
       this.applyFocusLimits()
       this.setMode('focused')
     } else {

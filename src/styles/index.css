@@ -1,5 +1,46 @@
 @import 'tailwindcss';
 
+/* Design tokens. Panels float over a dark 3D scene, so the palette is dark by design. */
+@theme {
+  --color-space: #03050c;
+  --color-panel: rgb(7 11 22 / 0.84);
+  --color-edge: rgb(255 255 255 / 0.14);
+  --color-edge-strong: rgb(255 255 255 / 0.3);
+  --color-accent: #7dd3fc;
+  --color-accent-soft: rgb(125 211 252 / 0.16);
+  --color-ink: #e6ebf5;
+  --color-ink-muted: #9aa8c4;
+  --shadow-panel: 0 8px 32px rgb(0 0 0 / 0.45);
+}
+
+/* Panels float over the scene on wide screens AND on short, wide ones (a phone held sideways),
+   where stacking them below the scene would leave only a sliver of 3D. */
+@custom-variant dock {
+  @media (min-width: 64rem) {
+    @slot;
+  }
+  @media (min-width: 30rem) and (max-height: 32rem) {
+    @slot;
+  }
+}
+
+/* No backdrop blur on purpose: it re-blurs the live WebGL canvas every frame and is slow on phones. */
+@utility glass-panel {
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-edge);
+  box-shadow: var(--shadow-panel);
+}
+
+/* Indeterminate progress bar used by the loading state. */
+@keyframes sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
 html,
 body,
 #root {
@@ -8,7 +49,7 @@ body,
 
 body {
   margin: 0;
-  background-color: #05070d;
-  color: #e6ebf5;
+  background-color: var(--color-space);
+  color: var(--color-ink);
   font-family: system-ui, sans-serif;
 }

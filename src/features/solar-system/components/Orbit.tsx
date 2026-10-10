@@ -8,12 +8,13 @@ const orbitMaterial = new LineBasicMaterial({
   opacity: 0.3,
 })
 
-export function Orbit({ radius }: { radius: number }) {
+export function Orbit({ radius, visible = true }: { radius: number; visible?: boolean }) {
   return (
     <lineLoop
       geometry={unitCircleGeometry}
       material={orbitMaterial}
       scale={radius}
+      visible={visible}
       dispose={null}
     />
   )

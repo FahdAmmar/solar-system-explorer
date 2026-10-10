@@ -9,7 +9,6 @@ import { useSolarSystemStore } from '@/store/solarSystemStore'
 import type { Planet } from '@/types/planet'
 import { CameraController } from './CameraController'
 import { OverlayPositioner } from './OverlayPositioner'
-import { ResetViewButton } from './ResetViewButton'
 import { SceneOverlay } from './SceneOverlay'
 import { SolarSystem } from './SolarSystem'
 import { WebGLUnsupported } from './WebGLUnsupported'
@@ -20,6 +19,8 @@ const PIXEL_RATIO_RANGE: [number, number] = [1, 2]
 
 export function SolarSystemCanvas({ planets }: { planets: readonly Planet[] }) {
   const [registry] = useState(() => new OverlayRegistry())
+  // Same object for the lifetime of the app, so planets keep their place across page changes.
+  const clock = useSolarSystemStore((state) => state.clock)
   const selectPlanet = useSolarSystemStore((state) => state.selectPlanet)
   useDeselectOnEscape()
   useResetHighlightOnUnmount()
@@ -40,12 +41,11 @@ export function SolarSystemCanvas({ planets }: { planets: readonly Planet[] }) {
       >
         <color attach="background" args={[BACKGROUND_COLOR]} />
         <CameraController bodies={planets} />
-        <SolarSystem planets={planets} />
+        <SolarSystem planets={planets} clock={clock} />
         {/* After the camera controller, so it reads this frame's camera. */}
         <OverlayPositioner bodies={planets} registry={registry} />
       </Canvas>
       <SceneOverlay bodies={planets} registry={registry} />
-      <ResetViewButton />
     </div>
   )
 }
