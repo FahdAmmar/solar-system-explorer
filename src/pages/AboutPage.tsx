@@ -1,5 +1,11 @@
+import { PageTitle } from '@/components/common/PageTitle'
 import { PagePlaceholder } from '@/components/common/PagePlaceholder'
 
 export default function AboutPage() {
-  return <PagePlaceholder title="About" note="About · Later phase" />
+  return (
+    <>
+      <PageTitle title="About" />
+      <PagePlaceholder title="About" note="About · Later phase" />
+    </>
+  )
 }

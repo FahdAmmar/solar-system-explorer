@@ -1,7 +1,13 @@
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost'
+export type ButtonSize = 'md' | 'lg'
 
 const BASE =
-  'inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full px-4 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none'
+  'inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none'
+
+const SIZES: Record<ButtonSize, string> = {
+  md: 'min-h-11 px-4 text-sm',
+  lg: 'min-h-14 px-8 text-base',
+}
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary: 'bg-accent text-space hover:bg-white',
@@ -10,5 +16,7 @@ const VARIANTS: Record<ButtonVariant, string> = {
 }
 
 // One look for <button> and <Link>, so actions match wherever they appear.
-export const buttonClass = (variant: ButtonVariant = 'secondary') =>
-  `${BASE} ${VARIANTS[variant]}`
+export const buttonClass = (
+  variant: ButtonVariant = 'secondary',
+  size: ButtonSize = 'md',
+) => `${BASE} ${SIZES[size]} ${VARIANTS[variant]}`

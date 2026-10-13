@@ -41,6 +41,33 @@
   }
 }
 
+/* Slow drift of a star layer. The layer is one tile larger than the screen, and it moves by
+   exactly one tile, so the loop has no visible jump. */
+@keyframes star-drift {
+  to {
+    transform: translate3d(var(--drift-distance), var(--drift-distance), 0);
+  }
+}
+
+/* The drift is only a pixel or two per second, so it advances in small steps (--drift-steps,
+   a few per second) instead of every frame. It looks the same, but the browser redraws the
+   screen-sized layers a handful of times per second instead of 60. */
+.star-layer {
+  animation: star-drift var(--drift-seconds) steps(var(--drift-steps), end) infinite;
+  will-change: transform;
+}
+
+/* The pause button on the landing page holds the stars where they are. */
+[data-paused='true'] .star-layer {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star-layer {
+    animation: none;
+  }
+}
+
 html,
 body,
 #root {

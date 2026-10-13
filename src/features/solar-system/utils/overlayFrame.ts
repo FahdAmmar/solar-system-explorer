@@ -27,6 +27,7 @@ interface BodyState extends LabelBox {
   appliedX: number
   appliedY: number
   appliedVisible: boolean
+  appliedUsable: boolean
 }
 
 interface MarkerState {
@@ -65,6 +66,7 @@ const createBodyState = (body: Planet): BodyState => ({
   appliedX: NaN,
   appliedY: NaN,
   appliedVisible: false,
+  appliedUsable: true,
 })
 
 const createMarkerState = (): MarkerState => ({
@@ -90,6 +92,12 @@ export function createOverlayState(
 }
 
 function applyLabel(element: HTMLElement, body: BodyState) {
+  if (body.usable !== body.appliedUsable) {
+    // A label that is off screen cannot show where keyboard focus is, so it leaves the tab order
+    // (WCAG 2.4.7). Screen readers still find it, and search reaches every planet.
+    element.firstElementChild?.setAttribute('tabindex', body.usable ? '0' : '-1')
+    body.appliedUsable = body.usable
+  }
   if (body.visible !== body.appliedVisible) {
     element.style.opacity = body.visible ? '1' : '0'
     element.style.pointerEvents = body.visible ? 'auto' : 'none'

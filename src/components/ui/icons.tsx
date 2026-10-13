@@ -68,3 +68,15 @@ export const ChevronIcon = ({ up = false }: { up?: boolean }) => (
     <path d={up ? 'M3.5 10l4.5-4.5 4.5 4.5' : 'M3.5 6l4.5 4.5L12.5 6'} />
   </Icon>
 )
+
+export const SwapIcon = () => (
+  <Icon>
+    <path d="M2.5 5h10.5M10.5 2.5L13 5l-2.5 2.5M13.5 11H3M5.5 8.5L3 11l2.5 2.5" />
+  </Icon>
+)
+
+export const ArrowRightIcon = () => (
+  <Icon>
+    <path d="M2.5 8h11M9 3.5L13.5 8 9 12.5" />
+  </Icon>
+)

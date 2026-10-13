@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Link, useRouteError } from 'react-router'
+import { PageTitle } from './PageTitle'
 
 export function RouteError() {
   const error = useRouteError()
@@ -11,6 +12,7 @@ export function RouteError() {
 
   return (
     <section role="alert" className="grid h-full place-items-center p-6 text-center">
+      <PageTitle title="Something went wrong" />
       <div>
         <h1 className="text-2xl font-semibold">Something went wrong</h1>
         <p className="mt-3 text-sm text-slate-400">

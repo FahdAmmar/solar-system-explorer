@@ -107,7 +107,7 @@ export function PlanetSearch({ planets }: { planets: readonly Planet[] }) {
 
   return (
     <div ref={rootRef} className="relative">
-      <div className="flex min-h-11 items-center gap-2 rounded-full glass-panel bg-space/95! pr-1 pl-4 focus-within:border-accent">
+      <div className="flex min-h-11 items-center gap-2 rounded-full glass-panel bg-space/95! pr-1 pl-4 focus-within:border-accent focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent">
         <SearchIcon />
         <input
           ref={inputRef}
@@ -170,6 +170,8 @@ export function PlanetSearch({ planets }: { planets: readonly Planet[] }) {
               id={listboxId}
               role="listbox"
               aria-label="Planets"
+              // A scrolling list becomes a Tab stop by itself in Chrome; focus stays in the field.
+              tabIndex={-1}
               className="max-h-[min(22rem,50dvh)] overflow-y-auto py-1"
             >
               {results.map((planet, index) => (

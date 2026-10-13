@@ -1,10 +1,9 @@
-import { StatusScreen } from '@/components/common/StatusScreen'
-import { usePlanets } from '@/hooks/queries/usePlanets'
+import { PageTitle } from '@/components/common/PageTitle'
 import { ControlPanel } from '@/features/solar-system/components/ControlPanel'
 import { SolarSystemCanvas } from '@/features/solar-system/components/SolarSystemCanvas'
 import type { Planet } from '@/types/planet'
 import { PlanetInfoPanel } from '@/features/planets/components/PlanetInfoPanel'
-import { PlanetsUnavailable } from '@/features/planets/components/PlanetsUnavailable'
+import { PlanetsGate } from '@/features/planets/components/PlanetsGate'
 import { PlanetSearch } from '@/features/search/components/PlanetSearch'
 
 // The scene itself. Small screens: a column (scene, then details, then controls), so nothing
@@ -37,34 +36,11 @@ function ExploreScene({ planets }: { planets: readonly Planet[] }) {
   )
 }
 
-// Decides what the page shows from the planet query: loading, no data (error or empty), or the scene.
 export default function ExplorePage() {
-  const { data: planets, isError, error, isFetching, refetch } = usePlanets()
-
-  // Checked on `data`, not on the status: a failed background refresh must not remove a scene
-  // that is already showing good data.
-  if (planets === undefined) {
-    if (!isError) {
-      return <StatusScreen variant="loading" title="Loading planetary data…" />
-    }
-    return (
-      <PlanetsUnavailable
-        error={error}
-        isRetrying={isFetching}
-        onRetry={() => void refetch()}
-      />
-    )
-  }
-
-  if (planets.length === 0) {
-    return (
-      <PlanetsUnavailable
-        error={null}
-        isRetrying={isFetching}
-        onRetry={() => void refetch()}
-      />
-    )
-  }
-
-  return <ExploreScene planets={planets} />
+  return (
+    <>
+      <PageTitle title="Explore" />
+      <PlanetsGate>{(planets) => <ExploreScene planets={planets} />}</PlanetsGate>
+    </>
+  )
 }

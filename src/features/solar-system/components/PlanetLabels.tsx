@@ -1,3 +1,4 @@
+import { PLANET_LABEL_ATTRIBUTE } from '@/features/solar-system/utils/focusPlanetLabel'
 import type { OverlayRegistry } from '@/features/solar-system/utils/overlayRegistry'
 import { selectHighlightedId, useSolarSystemStore } from '@/store/solarSystemStore'
 import type { Planet } from '@/types/planet'
@@ -32,6 +33,7 @@ function PlanetLabel({ id, name, registry }: LabelProps) {
     >
       <button
         type="button"
+        {...{ [PLANET_LABEL_ATTRIBUTE]: id }}
         aria-pressed={selected}
         onClick={() => selectPlanet(id)}
         onPointerEnter={() => hoverPlanet(id)}

@@ -37,13 +37,8 @@ export const Sun = memo(function Sun({ data, clock, ...handlers }: SunProps) {
       {/* Only the surface spins: the glow sprite faces the camera and the light has no direction. */}
       <group ref={spinRef}>
         <mesh geometry={unitSphereGeometry} scale={radius} dispose={null}>
-          {/* The texture carries the colour, so the emissive colour is neutral white. */}
-          <meshStandardMaterial
-            color="#000000"
-            emissive="#ffffff"
-            emissiveMap={surface}
-            toneMapped={false}
-          />
+          {/* The Sun makes its own light, so its surface is unlit: the texture is the colour. */}
+          <meshBasicMaterial map={surface} toneMapped={false} />
         </mesh>
       </group>
       {/* The glow is a square sprite: excluded from picking so its corners do not select the Sun. */}

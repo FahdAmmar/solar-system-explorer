@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router'
 import { PageLoader } from '@/components/common/PageLoader'
 import { RouteError } from '@/components/common/RouteError'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { loadComparePage, loadExplorePage } from '@/app/routeModules'
 import AboutPage from '@/pages/AboutPage'
 import HomePage from '@/pages/HomePage'
 import NotFoundPage from '@/pages/NotFoundPage'
@@ -23,8 +24,8 @@ export const router = createBrowserRouter([
         errorElement: <RouteError />,
         children: [
           { index: true, element: <HomePage /> },
-          { path: 'explore', lazy: lazyPage(() => import('@/pages/ExplorePage')) },
-          { path: 'compare', lazy: lazyPage(() => import('@/pages/ComparePage')) },
+          { path: 'explore', lazy: lazyPage(loadExplorePage) },
+          { path: 'compare', lazy: lazyPage(loadComparePage) },
           { path: 'about', element: <AboutPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],

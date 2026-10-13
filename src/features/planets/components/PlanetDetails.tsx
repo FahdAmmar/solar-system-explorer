@@ -1,7 +1,8 @@
-import { useId, useRef, useState } from 'react'
+import { useId, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { ChevronIcon, CloseIcon } from '@/components/ui/icons'
 import { buttonClass } from '@/components/ui/buttonClass'
+import { focusPlanetLabel } from '@/features/solar-system/utils/focusPlanetLabel'
 import { useEntranceAnimation } from '@/hooks/useEntranceAnimation'
 import { useSolarSystemStore } from '@/store/solarSystemStore'
 import type { Planet } from '@/types/planet'
@@ -17,6 +18,16 @@ export function PlanetDetails({ planet }: { planet: Planet }) {
   const [expanded, setExpanded] = useState(false)
   const selectPlanet = useSolarSystemStore((state) => state.selectPlanet)
   useEntranceAnimation(rootRef)
+
+  // Closing the panel (button or Escape) removes the element that had focus. Hand focus back to
+  // the planet instead of letting it fall to <body>. A layout effect: the panel is still in the
+  // page when its cleanup runs, so it can tell whether it held focus.
+  useLayoutEffect(() => {
+    const root = rootRef.current
+    return () => {
+      if (root?.contains(document.activeElement)) focusPlanetLabel(planet.id)
+    }
+  }, [planet.id])
 
   const moreClass = expanded ? 'block' : 'hidden lg:block'
 
@@ -68,7 +79,10 @@ export function PlanetDetails({ planet }: { planet: Planet }) {
           >
             Focus camera
           </button>
-          <Link to="/compare" className={buttonClass('secondary')}>
+          <Link
+            to={`/compare?a=${encodeURIComponent(planet.id)}`}
+            className={buttonClass('secondary')}
+          >
             Compare
           </Link>
         </div>

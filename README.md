@@ -36,7 +36,7 @@ It is built as a portfolio-grade project: a typed data layer with validation, a 
 
 ## Project status
 
-This project is built in phases. Phases 1–9 are complete.
+This project is built in phases. Phases 1–13 are complete.
 
 | Area                                         | Status     |
 | -------------------------------------------- | ---------- |
@@ -44,13 +44,29 @@ This project is built in phases. Phases 1–9 are complete.
 | Search, information panel, responsive layout | ✅ Done    |
 | State management (Zustand)                   | ✅ Done    |
 | Data layer (TanStack Query, optional API)    | ✅ Done    |
-| Planet comparison page (`/compare`)          | 🚧 Planned |
-| Landing page (`/`) and About page            | 🚧 Planned |
-| Performance and accessibility audits         | 🚧 Planned |
+| Planet comparison page (`/compare`)          | ✅ Done    |
+| Landing page (`/`)                           | ✅ Done    |
+| About page (`/about`)                        | 🚧 Planned |
+| Performance and accessibility audits         | ✅ Done    |
 
-The Home, Compare and About routes currently show placeholders. The 3D experience lives at `/explore`.
+The About route currently shows a placeholder. The 3D experience lives at `/explore`.
 
 ## Screenshots
+
+### Landing
+
+<table>
+  <tr>
+    <td width="68%" valign="top"><img src="docs/screenshots/landing-desktop.png" alt="Landing page: the title Explore The Solar System, a subtitle and a Start Exploring button on a starry background, with the Sun and the inner planets orbiting on the right and a Pause motion button in the corner" /></td>
+    <td width="32%" align="center" valign="top"><img src="docs/screenshots/landing-mobile.png" alt="Landing page on a phone: title, subtitle and button at the top, the Sun and orbits below, and a Pause motion button in the corner" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Desktop: text on the left, a live partial 3D preview on the right</sub></td>
+    <td align="center"><sub>Phone: text on top, preview below</sub></td>
+  </tr>
+</table>
+
+### Explore
 
 <table>
   <tr>
@@ -71,6 +87,23 @@ The Home, Compare and About routes currently show placeholders. The 3D experienc
   <tr>
     <td align="center"><sub>Mobile: the scene keeps the screen</sub></td>
     <td align="center"><sub>Mobile: details stack below the scene</sub></td>
+  </tr>
+</table>
+
+### Comparison
+
+<p align="center">
+  <img src="docs/screenshots/compare-desktop.png" alt="Comparison page: Earth and Mars drawn to relative size, then rows for diameter, distance, moons, temperature and year with bars growing left and right from a centre line" width="100%" />
+</p>
+
+<table>
+  <tr>
+    <td width="50%" align="center"><img src="docs/screenshots/compare-mobile.png" alt="Mobile comparison of Earth and Jupiter: pickers, a to-scale size picture and the first rows" width="300" /></td>
+    <td width="50%" align="center"><img src="docs/screenshots/compare-mobile-scrolled.png" alt="Mobile comparison scrolled down: the planet names stay pinned at the top while the rows scroll" width="300" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Mobile: two pickers and a to-scale size picture</sub></td>
+    <td align="center"><sub>The names stay pinned while the rows scroll</sub></td>
   </tr>
 </table>
 
@@ -95,6 +128,22 @@ The Home, Compare and About routes currently show placeholders. The 3D experienc
 - Play and pause, with seven speeds from 0.1× to 100×
 - Real orbital-period ratios; Venus and Uranus spin backwards
 - Speed changes never make planets jump, and a background tab never teleports them
+
+**Landing page**
+
+- A hero with the title, a subtitle and a **Start Exploring** button, built up by GSAP in reading order (title lines rise out of a mask, then the subtitle, then the button)
+- A starry background with slow, two-layer drift, and a live, cropped 3D view of the inner solar system behind the text
+- The preview shares the simulation clock with Explore, so the planets are where you find them after you click through
+- The preview is optional in every way: it starts only after the hero has finished animating, and without WebGL, planet data or its code the page simply shows the stars
+- Hovering or focusing the button loads the Explore page early, so the click feels instant
+
+**Comparison**
+
+- Pick any two bodies, or swap them; the pair lives in the URL (`/compare?a=earth&b=mars`), so a link, a refresh and the back button all keep it
+- The **Compare** button on a planet in Explore opens that planet against Earth (or Earth against Mars)
+- Both bodies drawn to true relative size, then side-by-side bars for diameter, distance, moons, temperature, year and rotation
+- A plain sentence for every row ("Earth is 1.9× as wide as Mars"); values that do not apply (the Sun has no moons) show a dash
+- Temperature bars start at absolute zero, so a body colder than 0 °C still gets an honest bar
 
 **Interface**
 
@@ -172,6 +221,8 @@ The two libraries solve different problems, so each owns a clearly separate kind
 
 GSAP sits beside both: React and Zustand decide **what** should happen, GSAP decides **how the transition looks**.
 
+A third place holds one more kind of state: **the URL**. Which two bodies are being compared is not stored in Zustand but in the query string, because a comparison is something people want to share, bookmark and reload. The ids in the URL are untrusted input, so they are checked against the real planet list and anything unknown falls back to a sensible pair.
+
 ### Folder structure
 
 ```text
@@ -180,7 +231,9 @@ src/
 ├── components/     Shared UI: layout, common states, buttons, icons
 ├── features/
 │   ├── solar-system/   3D scene, camera, simulation (components, hooks, data, utils)
-│   ├── planets/        Information panel and value formatting
+│   ├── planets/        Information panel, planet data gate and value formatting
+│   ├── comparison/     Planet comparison page (pair from the URL, bars, size picture)
+│   ├── landing/        Landing page: hero, starfield, 3D preview
 │   └── search/         Planet search
 ├── hooks/          Shared hooks, including hooks/queries (TanStack Query)
 ├── pages/          Route components
@@ -276,9 +329,18 @@ npm test               # Vitest
 npm run build          # Production build
 ```
 
-The unit tests cover the logic that is easiest to get subtly wrong: response validation and retry rules, the API client (success, HTTP errors, network errors, timeouts, cancellation), value formatting, search ranking, orbit and spin maths, the simulation clock, the visual scale, camera framing and paths, the Zustand store, and the integrity of the bundled planet data.
+The unit tests cover the logic that is easiest to get subtly wrong: response validation and retry rules, the API client (success, HTTP errors, network errors, timeouts, cancellation), value formatting, search ranking, orbit and spin maths, the simulation clock, the visual scale, camera framing and paths, the Zustand store, the integrity of the bundled planet data, the comparison logic (choosing a safe pair from a URL, bar lengths, the one-sentence summaries), and the landing page's camera placement, preview selection and generated starfield.
 
 > `npx tsc --noEmit` on its own checks nothing in this repository: the root `tsconfig.json` only lists project references. Use `npm run typecheck`, which builds both referenced projects.
+
+## Accessibility
+
+- **Keyboard.** Every action works without a pointer. A "Skip to main content" link comes first. Planets are reachable through the labels in the scene or through search. Labels that are off screen are left out of the tab order, because a focused control nobody can see is a lost keyboard user; search still reaches every planet, and Reset view brings them all back. Closing the details panel returns focus to the planet, and after navigating, focus moves to the page and scroll returns to the top.
+- **Screen readers.** Landmarks (`header`, `nav`, `main`), one `h1` per page, a title for every route, announcements for the selected planet and for the number of search results, the combobox pattern for search, and `aria-pressed` on every toggle. The canvas itself is hidden from assistive technology: the labels are the real controls.
+- **Motion.** `prefers-reduced-motion` is respected everywhere: the simulation starts paused, camera moves become jumps, and no CSS animation runs. Outside that setting, both the landing page and Explore have a Pause button.
+- **Contrast and size.** Text meets WCAG AA (4.5:1, or 3:1 for large text), measured against what is actually drawn behind it, including the 3D scene. Controls are at least 44 px tall except the planet labels (24 px, floating over the scene), whose 44 px alternative is the search box. Nothing scrolls sideways at 320 px wide.
+
+How it was checked: axe-core on every route, at phone and desktop sizes and in the interesting states (no violations), scripted keyboard walk-throughs, and the pixel-based contrast measurement. These checks ran by hand; they are not part of CI. Real screen readers (NVDA, VoiceOver, TalkBack) have not been tried.
 
 ## Performance notes
 
@@ -286,23 +348,30 @@ The unit tests cover the logic that is easiest to get subtly wrong: response val
 - Panels use no backdrop blur, because that would re-blur the live WebGL canvas every frame.
 - Simulated time is a plain object advanced each frame outside React, so the scene never re-renders 60 times a second.
 - Planets are memoized and share geometries; surface textures are generated, not downloaded.
-- Pages are code-split by route, so the 3D code loads only when you open `/explore`.
+- Pages are code-split by route. three.js and React Three Fiber sit in their own chunk (about 240 kB gzipped) that changes only when those libraries do, so a deploy that touches app code leaves it in the browser cache. The landing page downloads it only after the hero has finished animating, and skips it when WebGL is unavailable.
+- While the simulation is paused, the Explore canvas draws only when something changes (a hover, a toggle, a camera move). A paused, untouched scene costs no GPU time and no battery. A camera flight still renders every frame.
+- Resources are released when a 3D page unmounts, and visiting the pages repeatedly leaves the number of renderers, DOM nodes and event listeners unchanged. Planets use Lambert materials rather than PBR ones: they are matte and lit only by the Sun, so PBR added shader cost and nothing visible, and three.js r186 keeps every renderer that draws a PBR material alive through a shared lookup texture.
+- Surface textures are 512×256 (about 6 MB of GPU memory for the whole Explore scene). When the camera focuses on a planet it fills most of a phone screen and only half the texture wraps into view (256 texels across), so they were not reduced further.
+- The landing starfield is one small tiled SVG per layer, and its slow drift advances in a few steps per second instead of every frame. Stacking a gradient per star made the page paint at under 1 frame per second on a CPU-rendered browser; this version is a plain image blit.
+- Decoration never competes with content: the 3D preview waits for the hero entrance, runs at a lower pixel density than Explore, and draws once and stops when the simulation is paused (including under reduced motion).
 
 ## Known limitations
 
-- The `/explore` chunk is about 1 MB (about 290 kB gzipped), which makes Vite print a size warning during the build. Splitting it is part of the planned performance phase.
+- The 3D vendor chunk is about 910 kB (about 241 kB gzipped), almost all of it three.js itself, which cannot be split further. It loads lazily, and `chunkSizeWarningLimit` is set to 1 MB so the build still warns if it ever grows past that.
+- The console shows a `THREE.Clock` deprecation notice. It comes from React Three Fiber 9.8.1 (the latest release) and goes away when that library moves to `THREE.Timer`.
 - Because of the compressed visual scale, Venus and Earth, and Jupiter and Saturn's rings, sit closer together than their combined sizes, so they can briefly overlap when they line up.
+- The camera can be moved freely only by mouse or touch (drag, pinch, scroll). By keyboard, choosing a planet flies the camera to it, and Reset view returns to the overview.
 - Earth has no atmosphere or Moon yet.
 - Moon counts are from early 2026 and change as new moons are confirmed.
 
 ## Roadmap
 
-- [ ] Planet comparison page, with side-by-side facts and visual indicators
-- [ ] Landing page with GSAP entrance animations
+- [x] Planet comparison page, with side-by-side facts and visual indicators
+- [x] Landing page with GSAP entrance animations
 - [ ] Earth atmosphere and the Moon
 - [ ] Staged loading screen
-- [ ] Performance audit (render performance, bundle size, mobile)
-- [ ] Accessibility audit (keyboard, focus, ARIA, reduced motion)
+- [x] Performance audit (render performance, bundle size, mobile)
+- [x] Accessibility audit (keyboard, focus, ARIA, reduced motion)
 - [ ] Final QA pass
 
 ## Acknowledgements

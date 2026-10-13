@@ -56,11 +56,13 @@ export const Planet = memo(function Planet({
           {/* The spin group holds everything that turns with the planet, including Saturn's rings. */}
           <group ref={spinRef}>
             <mesh geometry={unitSphereGeometry} scale={radius} dispose={null}>
-              <meshStandardMaterial
+              {/* Lambert, not Standard: these bodies are matte and unlit by anything but the Sun, so
+                  PBR adds cost and nothing visible. It also avoids a three.js r186 leak: every renderer
+                  that draws a Standard material stays attached to a shared lookup texture for good. */}
+              <meshLambertMaterial
                 map={surface}
                 emissive={data.color}
                 emissiveIntensity={getEmissiveIntensity(selected, hovered)}
-                roughness={1}
               />
             </mesh>
             {data.id === 'saturn' && <SaturnRings planetRadius={radius} />}
